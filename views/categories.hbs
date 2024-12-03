@@ -1,0 +1,35 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <h2>Categories</h2>
+      <a href="/categories/add" class="btn btn-success pull-right">Add Category</a>
+      <br /><br />
+      {{#if categories}}
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Category ID</th>
+            <th>Category Name</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each categories}}
+          <tr>
+            <td>{{id}}</td>
+            <td>{{category}}</td>
+            <td>
+              <a href="/categories/delete/{{id}}" class="btn btn-danger">Remove</a>
+            </td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+      {{else}}
+      <div class="text-center">
+        <strong>No Categories Available</strong>
+      </div>
+      {{/if}}
+    </div>
+  </div>
+</div>

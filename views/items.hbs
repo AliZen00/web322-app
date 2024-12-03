@@ -1,0 +1,41 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <h2>Items</h2>
+      <a href="/items/add" class="btn btn-success pull-right">Add Item</a>
+      <br /><br />
+      {{#if items}}
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Item ID</th>
+            <th>Title</th>
+            <th>Price</th>
+            <th>Category</th>
+            <th>Published</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each items}}
+          <tr>
+            <td>{{id}}</td>
+            <td>{{title}}</td>
+            <td>${{price}}</td>
+            <td>{{category}}</td>
+            <td>{{#if published}}Yes{{else}}No{{/if}}</td>
+            <td>
+              <a href="/items/delete/{{id}}" class="btn btn-danger">Remove</a>
+            </td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+      {{else}}
+      <div class="text-center">
+        <strong>No Items Available</strong>
+      </div>
+      {{/if}}
+    </div>
+  </div>
+</div>

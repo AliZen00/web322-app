@@ -1,0 +1,36 @@
+<div class="row">
+    <section class="main col-md-9">
+        {{#if data.item}}
+            <div class="row">
+                <div class="col-4">
+                    <h2>{{data.item.title}}</h2>
+                    <img src="{{data.item.featureImage}}" alt="Feature Image" />
+                </div>
+                <div class="col-8">
+                    <p>{{data.item.body}}</p>
+                    <strong>Price:</strong> ${{data.item.price}} <br />
+                    <strong>Category:</strong> {{data.item.category}} <br />
+                    <strong>Posted on:</strong> {{#formatDate data.item.itemDate}}{{/formatDate}}
+                </div>
+            </div>
+        {{else}}
+            <div class="col-md-12 text-center">
+                <h2>No Items Available</h2>
+                <p>Please check back later.</p>
+            </div>
+        {{/if}}
+    </section>
+
+    <aside class="col-md-3">
+        <h4>Categories</h4>
+        <ul class="list-group">
+            {{#if data.categories}}
+                {{#each data.categories}}
+                    <a href="/shop?category={{id}}" class="list-group-item">{{category}}</a>
+                {{/each}}
+            {{else}}
+                <li class="list-group-item">No categories available</li>
+            {{/if}}
+        </ul>
+    </aside>
+</div>

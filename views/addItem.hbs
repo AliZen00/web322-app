@@ -1,0 +1,41 @@
+<div class="container" style="padding-top: 90px;">
+  <div class="row">
+    <div class="col-md-12">
+      <h2>Add Item</h2>
+      <a href="/items" class="btn btn-secondary pull-right">Back to Items</a>
+      <br /><br />
+      <form method="post" action="/items/add" enctype="multipart/form-data">
+        <fieldset>
+          <legend>Feature Image</legend>
+          <input class="form-control" id="featureImage" name="featureImage" type="file" />
+        </fieldset>
+        <br />
+        <fieldset>
+          <legend>Post Content</legend>
+          <label for="title">Item Name:</label>
+          <input class="form-control" id="title" name="title" type="text" />
+          <label for="body">Description:</label>
+          <textarea class="form-control" id="body" name="body" rows="5"></textarea>
+          <label for="price">Price:</label>
+          <input class="form-control" id="price" name="price" type="number" step="0.01" />
+          <label for="category">Category:</label>
+          {{#if categories}}
+          <select class="form-control" name="category" id="category">
+            <option value="">Select Category</option>
+            {{#each categories}}
+              <option value="{{id}}">{{category}}</option>
+            {{/each}}
+          </select>
+          {{else}}
+          <div>No Categories</div>
+          {{/if}}
+          <div class="checkbox">
+            <label><input type="checkbox" name="published" id="published" /> Published</label>
+          </div>
+        </fieldset>
+        <br />
+        <button type="submit" class="btn btn-primary">Add Item</button>
+      </form>
+    </div>
+  </div>
+</div>
