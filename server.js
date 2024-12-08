@@ -1,12 +1,12 @@
 /*********************************************************************************
-WEB322 – Assignment 05
+WEB322 – Assignment 06
 I declare that this assignment is my own work in accordance with Seneca Academic Policy.
 No part of this assignment has been copied manually or electronically from any other source
 (including 3rd party web sites) or distributed to other students.
 
 Name: Ali Khorram
 Student ID: 145533196
-Date: 2024-11-29
+Date: 2024-12-07
 Vercel Web App URL: https://web322-app-eight-peach.vercel.app/
 GitHub Repository URL: https://github.com/AliKhorram/web322-app
 ********************************************************************************/
@@ -18,6 +18,17 @@ const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 const streamifier = require("streamifier");
 const exphbs = require("express-handlebars");
+
+const clientSessions = require("client-sessions");
+
+
+const authData = require("./auth-service");
+
+authData
+    .initialize()
+    .then(() => console.log("Database connection successful"))
+    .catch((err) => console.error(`Error: ${err}`));
+
 
 const app = express();
 const HTTP_PORT = process.env.PORT || 8080;
@@ -55,6 +66,31 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(
+  clientSessions({
+      cookieName: "session", 
+      secret: "web322_assignment6_secret", 
+      duration: 2 * 60 * 60 * 1000, 
+      activeDuration: 1000 * 60 * 30, 
+  })
+);
+
+app.use((req, res, next) => {
+  res.locals.session = req.session;
+  next();
+});
+
+function ensureLogin(req, res, next) {
+  if (!req.session.user) {
+      res.redirect("/login");
+  } else {
+      next();
+  }
+}
+
+
+
+
 // Routes
 app.get("/", (req, res) => res.redirect("/about"));
 
@@ -85,7 +121,7 @@ app.get("/shop", async (req, res) => {
 });
 
 
-app.get("/categories", (req, res) => {
+app.get("/categories",ensureLogin, (req, res) => {
   itemData
     .getCategories()
     .then((data) => {
@@ -95,7 +131,7 @@ app.get("/categories", (req, res) => {
     .catch(() => res.render("categories", { message: "No Categories Available" }));
 });
 
-app.get("/categories/add", (req, res) => res.render("addCategory"));
+app.get("/categories/add", ensureLogin, (req, res) => res.render("addCategory"));
 
 app.post("/categories/add", (req, res) => {
   itemData
@@ -111,7 +147,7 @@ app.get("/categories/delete/:id", (req, res) => {
     .catch(() => res.status(500).send("Unable to Remove Category"));
 });
 
-app.get("/items", (req, res) => {
+app.get("/items", ensureLogin, (req, res) => {
   let queryPromise;
   if (req.query.category) queryPromise = itemData.getItemsByCategory(req.query.category);
   else if (req.query.minDate) queryPromise = itemData.getItemsByMinDate(req.query.minDate);
@@ -125,7 +161,7 @@ app.get("/items", (req, res) => {
     .catch(() => res.render("items", { message: "No Items Available" }));
 });
 
-app.get("/items/add", (req, res) => {
+app.get("/items/add", ensureLogin, (req, res) => {
   itemData
     .getCategories()
     .then((data) => res.render("addItem", { categories: data }))
@@ -175,7 +211,68 @@ app.get("/items/delete/:id", (req, res) => {
     .catch(() => res.status(500).send("Unable to Remove Item"));
 });
 
+app.get("/login", (req, res) => {
+  res.render("login");
+});
+
+app.post("/login", (req, res) => {
+  req.body.userAgent = req.get("User-Agent"); 
+
+  authData
+      .checkUser(req.body)
+      .then((user) => {
+          
+          req.session.user = {
+              userName: user.userName,
+              email: user.email,
+              loginHistory: user.loginHistory,
+          };
+          res.redirect("/items");
+      })
+      .catch((err) => {
+          res.render("login", {
+              errorMessage: err,
+              userName: req.body.userName,
+          });
+      });
+});
+
+
+app.get("/register", (req, res) => {
+  res.render("register");
+});
+
+app.post("/register", (req, res) => {
+  authData
+      .registerUser(req.body)
+      .then(() => {
+          res.render("register", { successMessage: "User created" });
+      })
+      .catch((err) => {
+          res.render("register", {
+              errorMessage: err,
+              userName: req.body.userName,
+          });
+      });
+});
+
+app.get("/logout", (req, res) => {
+  req.session.reset();
+  res.redirect("/");
+});
+
+app.get("/userHistory", ensureLogin, (req, res) => {
+  res.render("userHistory", {
+      loginHistory: req.session.user.loginHistory,
+  });
+});
+
+
+
 app.use((req, res) => res.status(404).render("404"));
+
+
+
 
 // Initialize Database and Start Server
 itemData
